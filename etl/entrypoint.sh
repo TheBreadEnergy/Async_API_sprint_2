@@ -29,4 +29,4 @@ curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/movies -H 'Con
 curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/genres -H 'Content-Type: application/json' -d "@./schema/genres.json"
 curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/persons -H 'Content-Type: application/json' -d "@./schema/persons.json"
 
-python main.py
+python -m src.main

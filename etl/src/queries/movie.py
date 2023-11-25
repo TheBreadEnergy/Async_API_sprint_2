@@ -1,5 +1,5 @@
-from queries.base import BaseQuery
-from queries.settings import (
+from src.queries.base import BaseQuery
+from src.queries.settings import (
     GENRE_MOVIE_TABLE,
     GENRE_TABLE,
     MOVIE_TABLE,

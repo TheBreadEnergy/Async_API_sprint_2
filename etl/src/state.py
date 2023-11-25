@@ -1,7 +1,7 @@
 from typing import Any
 
-from base_storage import BaseStorage
-from logger import logger
+from src.logger import logger
+from src.storage.base_storage import BaseStorage
 
 
 class State:

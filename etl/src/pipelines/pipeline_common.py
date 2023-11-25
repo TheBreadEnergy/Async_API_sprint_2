@@ -1,39 +1,41 @@
 import time
 from datetime import datetime
-from typing import Generator, Tuple, Union
+from typing import Generator, Tuple, Type, Union
 
 import backoff
-from common.coroutine import coroutine
-from elasticsearch import Elasticsearch, helpers
-from logger import logger
-from models.genre_es import GenreES
-from models.movie_es import MovieES
-from models.person_es import PersonES
-from psycopg import ServerCursor
-from state import State
-
-from config import APP_SETTINGS, BACKOFF_CONFIG
+from src.common.coroutine import coroutine
+from src.config import APP_SETTINGS, BACKOFF_CONFIG
+from src.fetchers.base_fetcher import BaseFetcher
+from src.loaders.base_loader import BaseLoader
+from src.logger import logger
+from src.models.genre_es import GenreES
+from src.models.movie_es import MovieES
+from src.models.person_es import PersonES
+from src.state import State
 
 
 def fetch_generator(query: str):
     @coroutine
     @backoff.on_exception(**BACKOFF_CONFIG)
-    def fetch(cursor: ServerCursor, next_node: Generator) -> Generator[None, str, None]:
+    def fetch(fetcher: BaseFetcher, next_node: Generator) -> Generator[None, str, None]:
         while last_updated := (yield):
             logger.info(
                 "Quering entities with modified date greater than %s, with query %s",
                 last_updated,
                 query,
             )
-            cursor.execute(query, (last_updated,))
-            while result := cursor.fetchmany(size=APP_SETTINGS.batch_size):
+            for result in fetcher.fetch_many(
+                query, APP_SETTINGS.batch_size, last_updated
+            ):
                 logger.info("Queried %s objects", len(result))
                 next_node.send(result)
 
     return fetch
 
 
-def transform_generator(entity_type: Union[MovieES, GenreES, PersonES]):
+def transform_generator(
+    entity_type: Union[Type[MovieES], Type[GenreES], Type[PersonES]]
+):
     @coroutine
     def transform(next_node: Generator) -> Generator[None, list[dict], None]:
         while data := (yield):
@@ -51,28 +53,21 @@ def transform_generator(entity_type: Union[MovieES, GenreES, PersonES]):
     return transform
 
 
-def save_generator(index: str, state_key: str):
+def save_generator(state_key: str):
     @coroutine
     @backoff.on_exception(**BACKOFF_CONFIG)
     def save(
-        es_client: Elasticsearch, state: State
+        loader: BaseLoader, state: State
     ) -> Generator[None, Tuple[list[dict], datetime], None]:
         while movies := (yield):
             logger.info("Save state begins")
             t = time.perf_counter()
-            lines, _ = helpers.bulk(
-                client=es_client,
-                actions=movies[0],
-                index=index,
-                chunk_size=APP_SETTINGS.batch_size,
-            )
+            lines = loader.load_batch(movies[0], APP_SETTINGS.batch_size)
             elapsed = time.perf_counter() - t
             if lines == 0:
-                logger.info("Nothing to update in index %s", index)
+                logger.info("Nothing to update in index")
             else:
-                logger.info(
-                    "%s lines was updated in %s, for index %s", lines, elapsed, index
-                )
+                logger.info("%s lines was updated in %s", lines, elapsed)
 
             modified = movies[1]
             state.set_state(state_key, str(modified))

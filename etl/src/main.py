@@ -4,28 +4,35 @@ from contextlib import closing
 import backoff
 import psycopg
 from elasticsearch import Elasticsearch
-from logger import logger
-from models.genre_es import GenreES
-from models.movie_es import MovieES
-from models.person_es import PersonES
-from pipelines import build_pipeline, start_pipeline
-from psycopg import ServerCursor
 from psycopg.conninfo import make_conninfo
 from psycopg.rows import dict_row
-from queries.genre import GenreQuery
-from queries.movie import MovieQuery
-from queries.person import PersonQuery
 from redis import Redis
-from redis_storage import RedisStorage
-from state import State
-
-from config import APP_SETTINGS, BACKOFF_CONFIG, ELASTIC_DSN, POSTGRES_DSN, REDIS_DSN
+from src.config import (
+    APP_SETTINGS,
+    BACKOFF_CONFIG,
+    ELASTIC_DSN,
+    POSTGRES_DSN,
+    REDIS_DSN,
+)
+from src.fetchers.postgres_fetcher import PostgresFetcher
+from src.loaders.elastic_loader import ElasticLoader
+from src.logger import logger
+from src.models.genre_es import GenreES
+from src.models.movie_es import MovieES
+from src.models.person_es import PersonES
+from src.pipelines.pipelines import build_pipeline, start_pipeline
+from src.queries.genre import GenreQuery
+from src.queries.movie import MovieQuery
+from src.queries.person import PersonQuery
+from src.state import State
+from src.storage.redis_storage import RedisStorage
 
 
 @backoff.on_exception(**BACKOFF_CONFIG)
 def main() -> None:
     postgres_dsn = make_conninfo(**POSTGRES_DSN.model_dump())
     elastic_dsn = f"http://{ELASTIC_DSN.host}:{ELASTIC_DSN.port}"
+    print(elastic_dsn)
     redis_client = Redis(**REDIS_DSN.model_dump())
     state = State(
         RedisStorage(
@@ -35,33 +42,30 @@ def main() -> None:
 
     with closing(
         psycopg.connect(postgres_dsn, row_factory=dict_row)
-    ) as connection, ServerCursor(connection, "fetcher") as cursor, closing(
-        Elasticsearch([elastic_dsn])
-    ) as es_client:
+    ) as connection, closing(Elasticsearch([elastic_dsn])) as es_client:
+        print(elastic_dsn)
+        pg_fetcher = PostgresFetcher(pg_connection=connection)
         movie_pipeline = build_pipeline(
-            pg_cursor=cursor,
+            pg_fetcher=pg_fetcher,
             state=state,
-            es_client=es_client,
+            es_loader=ElasticLoader(es_client, APP_SETTINGS.movie_index),
             query=MovieQuery().query(),
-            es_index=APP_SETTINGS.movie_index,
             redis_key=APP_SETTINGS.movie_key,
             entity_type=MovieES,
         )
         genre_pipeline = build_pipeline(
-            pg_cursor=cursor,
+            pg_fetcher=pg_fetcher,
             state=state,
-            es_client=es_client,
+            es_loader=ElasticLoader(es_client, APP_SETTINGS.genre_index),
             query=GenreQuery().query(),
-            es_index=APP_SETTINGS.genre_index,
             redis_key=APP_SETTINGS.genre_key,
             entity_type=GenreES,
         )
         person_pipeline = build_pipeline(
-            pg_cursor=cursor,
+            pg_fetcher=pg_fetcher,
             state=state,
-            es_client=es_client,
+            es_loader=ElasticLoader(es_client, APP_SETTINGS.person_index),
             query=PersonQuery().query(),
-            es_index=APP_SETTINGS.person_index,
             redis_key=APP_SETTINGS.person_key,
             entity_type=PersonES,
         )

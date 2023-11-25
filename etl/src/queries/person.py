@@ -1,7 +1,7 @@
 import logging
 
-from queries.base import BaseQuery
-from queries.settings import MOVIE_TABLE, PERSON_MOVIE_TABLE, PERSON_TABLE
+from src.queries.base import BaseQuery
+from src.queries.settings import MOVIE_TABLE, PERSON_MOVIE_TABLE, PERSON_TABLE
 
 logger = logging.getLogger(__name__)
 

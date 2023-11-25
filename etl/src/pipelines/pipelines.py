@@ -1,31 +1,31 @@
 from datetime import datetime
-from typing import Generator, Union
+from typing import Generator, Type, Union
 
-from elasticsearch import Elasticsearch
-from logger import logger
-from models.genre_es import GenreES
-from models.movie_es import MovieES
-from models.person_es import PersonES
-from pipeline_common import fetch_generator, save_generator, transform_generator
-from psycopg import ServerCursor
-from state import State
+from src.fetchers.base_fetcher import BaseFetcher
+from src.loaders.base_loader import BaseLoader
+from src.logger import logger
+from src.models.genre_es import GenreES
+from src.models.movie_es import MovieES
+from src.models.person_es import PersonES
+from src.state import State
+
+from .pipeline_common import fetch_generator, save_generator, transform_generator
 
 
 def build_pipeline(
-    pg_cursor: ServerCursor,
+    pg_fetcher: BaseFetcher,
     state: State,
-    es_client: Elasticsearch,
+    es_loader: BaseLoader,
     query: str,
-    es_index: str,
     redis_key: str,
-    entity_type: Union[MovieES, GenreES, PersonES],
+    entity_type: Union[Type[MovieES], Type[GenreES], Type[PersonES]],
 ):
-    saver_gen = save_generator(es_index, redis_key)
+    saver_gen = save_generator(redis_key)
     transformer_gen = transform_generator(entity_type)
     fetcher_gen = fetch_generator(query)
-    saver_coro = saver_gen(es_client, state)
+    saver_coro = saver_gen(es_loader, state)
     transformer_coro = transformer_gen(next_node=saver_coro)
-    fetcher_coro = fetcher_gen(pg_cursor, next_node=transformer_coro)
+    fetcher_coro = fetcher_gen(pg_fetcher, next_node=transformer_coro)
     return fetcher_coro
 
 
