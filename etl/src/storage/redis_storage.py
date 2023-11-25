@@ -3,10 +3,9 @@ from logging import Logger
 from typing import Any, Dict
 
 import backoff
-from base_storage import BaseStorage
 from redis import Redis
-
-from config import APP_SETTINGS, BACKOFF_CONFIG
+from src.config import APP_SETTINGS, BACKOFF_CONFIG
+from src.storage.base_storage import BaseStorage
 
 
 class RedisStorage(BaseStorage):

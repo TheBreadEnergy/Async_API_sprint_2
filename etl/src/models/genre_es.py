@@ -1,6 +1,6 @@
 from typing import Optional
 
-from models.base import EntityMixinES
+from src.models.base import EntityMixinES
 
 
 class GenreES(EntityMixinES):

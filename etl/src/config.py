@@ -1,7 +1,7 @@
 import backoff
-from logger import logger
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from src.logger import logger
 
 
 class PostgresDsn(BaseSettings):
