@@ -2,31 +2,10 @@ from http import HTTPStatus
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
-from src.models.genre import Genre
-from src.models.person import Person
-from src.services.film import FilmService, get_film_service
+from src.models.film import Film, Films
+from src.services.film import FilmServiceABC
 
 router = APIRouter()
-
-
-class MixinFilms(BaseModel):
-    id: UUID
-    title: str
-    imdb_rating: float | None
-
-
-class Film(MixinFilms):
-    description: str | None
-    genres: list[Genre]
-    actors: list[Person] | None = []
-    writers: list[Person] | None = []
-    director: list[str] | None = []
-
-
-class Films(MixinFilms):
-    page: int = (Query(ge=0, default=0),)
-    size: int = Query(ge=1, le=100, default=40)
 
 
 @router.get(
@@ -37,10 +16,8 @@ class Films(MixinFilms):
     summary="Подробная информация о кинопроизведении",
     response_description="Информация о кинопроизведении",
 )
-async def film_details(
-    film_id: UUID, film_service: FilmService = Depends(get_film_service)
-) -> Film:
-    film = await film_service.get_by_id(film_id)
+async def film_details(film_id: UUID, film_service: FilmServiceABC = Depends()) -> Film:
+    film = await film_service.get(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
     return film
@@ -57,13 +34,12 @@ async def film_details(
     response_description="Информация о кинопроизведении",
 )
 async def search_films(
-    id_film: UUID = None,
-    title: str = None,
-    film_service: FilmService = Depends(get_film_service),
+    query: str,
+    film_service: FilmServiceABC = Depends(),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
 ) -> list[Films]:
-    films = await film_service.search_film(id_film, title, page, size)
+    films = await film_service.search(title=query, page=page, size=size)
     if not films:
         return list()
     return films
@@ -78,14 +54,14 @@ async def search_films(
     response_description="Информация о кинопроизведениях",
 )
 async def list_films(
-    sort=None,
+    sort=Query("asc", regex="^(asc|desc)$"),
     id_film: UUID = None,
     genre: str = None,
     actor_id: str = None,
     writer_id: str = None,
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
-    film_service: FilmService = Depends(get_film_service),
+    film_service: FilmServiceABC = Depends(),
 ) -> list[Films]:
     data_filter = {}
     if id_film:
@@ -97,7 +73,9 @@ async def list_films(
     if writer_id:
         data_filter["writers"] = writer_id
 
-    films = await film_service.get_all(sort, data_filter, page, size)
+    films = await film_service.gets(
+        sort=sort, data_filter=data_filter, page=page, size=size
+    )
     if not films:
         return list()
     return films

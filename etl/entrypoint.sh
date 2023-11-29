@@ -25,8 +25,8 @@ done
 # shellcheck disable=SC2086
 exec $cmd
 
+curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/_cluster/settings -H 'Content-Type: application/json' -d "@./schema/limitations.json"
 curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/movies -H 'Content-Type: application/json' -d "@./schema/movies.json"
 curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/genres -H 'Content-Type: application/json' -d "@./schema/genres.json"
 curl -XPUT http://"${ELASTICSEARCH_HOST}":"${ELASTICSEARCH_PORT}"/persons -H 'Content-Type: application/json' -d "@./schema/persons.json"
-
 python -m src.main

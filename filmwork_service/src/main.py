@@ -6,11 +6,11 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
-
 from src.api.v1 import films, genres, persons
 from src.core.config import settings
 from src.core.logger import LOGGING
 from src.db import elastic, redis
+from src.dependencies.main import setup_dependencies
 
 
 @asynccontextmanager
@@ -37,6 +37,8 @@ app = FastAPI(
 app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
+
+setup_dependencies(app)
 
 if __name__ == "__main__":
     uvicorn.run(

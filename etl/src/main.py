@@ -42,8 +42,7 @@ def main() -> None:
 
     with closing(
         psycopg.connect(postgres_dsn, row_factory=dict_row)
-    ) as connection, closing(Elasticsearch([elastic_dsn])) as es_client:
-        print(elastic_dsn)
+    ) as connection, closing(Elasticsearch([elastic_dsn], timeout=60)) as es_client:
         pg_fetcher = PostgresFetcher(pg_connection=connection)
         movie_pipeline = build_pipeline(
             pg_fetcher=pg_fetcher,

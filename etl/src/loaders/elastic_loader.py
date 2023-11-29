@@ -13,6 +13,8 @@ class ElasticLoader(BaseLoader):
     def load_batch(
         self, items: list[dict[str, Any]], batch_size: int = APP_SETTINGS.batch_size
     ):
+        for item in items:
+            item["_index"] = self._index_name
         lines, _ = helpers.bulk(
             client=self._es_client,
             actions=items,
