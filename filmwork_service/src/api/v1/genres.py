@@ -3,13 +3,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from src.models.genre import Genre
-from src.services.genres import GenreService, get_genre_service
+from src.services.genres import GenreServiceABC
 
 router = APIRouter()
 
 
 @router.get(
-    "/get/{genre_id}",
+    "/{genre_id}",
     response_model=Genre,
     description="Вывод подробной информации о запрашиваемом жанре",
     tags=["Жанры"],
@@ -17,9 +17,9 @@ router = APIRouter()
     response_description="Информация о жанре",
 )
 async def genre_details(
-    genre_id: UUID, genre_service: GenreService = Depends(get_genre_service)
+    genre_id: UUID, genre_service: GenreServiceABC = Depends()
 ) -> Genre:
-    genre = await genre_service.get_by_id(genre_id)
+    genre = await genre_service.get(genre_id=genre_id)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="genre not found")
 
@@ -27,7 +27,7 @@ async def genre_details(
 
 
 @router.get(
-    "/search",
+    "/search/",
     response_model=list[Genre],
     description="Поиск подробной информации о запрашиваемых жанрах",
     tags=["Жанры"],
@@ -36,11 +36,11 @@ async def genre_details(
 )
 async def search_genre(
     query: str,
-    genre_service: GenreService = Depends(get_genre_service),
+    genre_service: GenreServiceABC = Depends(),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
 ) -> list[Genre]:
-    genres = await genre_service.search_genre(query, page, size)
+    genres = await genre_service.search(name=query, page=page, size=size)
     if not genres:
         return list()
     return genres
@@ -59,12 +59,14 @@ async def list_genres(
     id_genre: UUID = None,
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
-    genre_service: GenreService = Depends(get_genre_service),
+    genre_service: GenreServiceABC = Depends(),
 ) -> list[Genre]:
     data_filter = {}
     if id_genre:
         data_filter["id"] = id_genre
-    genres = await genre_service.get_all(sort, data_filter, page, size)
+    genres = await genre_service.gets(
+        sort=sort, data_filter=data_filter, page=page, size=size
+    )
     if not genres:
         return list()
     return genres

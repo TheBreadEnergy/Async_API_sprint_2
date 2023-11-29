@@ -3,13 +3,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from src.models.person import Person
-from src.services.persons import PersonService, get_person_service
+from src.services.persons import PersonServiceABC
 
 router = APIRouter()
 
 
 @router.get(
-    "/get/{person_id}",
+    "/{person_id}",
     response_model=Person,
     description="Вывод подробной информации о запрашиваемом персоне",
     tags=["Персоны"],
@@ -17,9 +17,9 @@ router = APIRouter()
     response_description="Информация о персоне",
 )
 async def person_details(
-    person_id: UUID, person_service: PersonService = Depends(get_person_service)
+    person_id: UUID, person_service: PersonServiceABC = Depends()
 ) -> Person:
-    person = await person_service.get_by_id(person_id)
+    person = await person_service.get(person_id=person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="person not found")
 
@@ -27,7 +27,7 @@ async def person_details(
 
 
 @router.get(
-    "/search",
+    "/search/",
     response_model=list[Person],
     description="Поиск подробной информации о запрашиваемых персонах",
     tags=["Персоны"],
@@ -36,11 +36,11 @@ async def person_details(
 )
 async def search_person(
     query: str,
-    person_service: PersonService = Depends(get_person_service),
+    person_service: PersonServiceABC = Depends(),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
 ) -> list[Person]:
-    persons = await person_service.search_person(query, page, size)
+    persons = await person_service.search(name=query, page=page, size=size)
     if not persons:
         return list()
     return persons
@@ -59,12 +59,14 @@ async def list_persons(
     id_person: UUID = None,
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
-    person_service: PersonService = Depends(get_person_service),
+    person_service: PersonServiceABC = Depends(),
 ) -> list[Person]:
     data_filter = {}
     if id_person:
         data_filter["id"] = id_person
-    persons = await person_service.get_all(sort, data_filter, page, size)
+    persons = await person_service.gets(
+        sort=sort, data_filter=data_filter, page=page, size=size
+    )
     if not persons:
         return list()
     return persons

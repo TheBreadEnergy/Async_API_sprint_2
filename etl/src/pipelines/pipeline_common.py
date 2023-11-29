@@ -62,6 +62,7 @@ def save_generator(state_key: str):
         while movies := (yield):
             logger.info("Save state begins")
             t = time.perf_counter()
+            logger.info(movies[0])
             lines = loader.load_batch(movies[0], APP_SETTINGS.batch_size)
             elapsed = time.perf_counter() - t
             if lines == 0:

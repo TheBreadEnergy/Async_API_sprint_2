@@ -20,8 +20,8 @@ services:
       - elastic
     env_file:
       - envs/.env.api.films
-    expose:
-      - "8000"
+    ports:
+      - "8001:8000"
 
   redis-films:
     image: redis:latest
