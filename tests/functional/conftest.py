@@ -34,7 +34,9 @@ def es_write_data(es_client):
     async def inner(data: list[dict]):
         if await es_client.indices.exists(index=test_settings.es_movie_index):
             await es_client.indices.delete(index=test_settings.es_movie_index)
-        await es_client.indices.create(index=test_settings.es_index, **MOVIE_TEMPLATE)
+        await es_client.indices.create(
+            index=test_settings.es_movie_index, **MOVIE_TEMPLATE
+        )
 
         updated, errors = await async_bulk(client=es_client, actions=data)
 
