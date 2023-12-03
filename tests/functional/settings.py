@@ -8,7 +8,7 @@ class TestSettings(BaseSettings):
         "http://elastic:9200", env="ELASTIC_HOST", alias="ELASTIC_HOST"
     )
     es_movie_index: str = Field("movies", env="ES_MOVIE_INDEX", alias="ES_MOVIE_INDEX")
-    es_genre_index = Field("genres", env="ES_GENRE_INDEX", alias="ES_GENRE_INDEX")
+    es_genre_index: str = Field("genres", env="ES_GENRE_INDEX", alias="ES_GENRE_INDEX")
     es_person_index: str = Field(
         "persons", env="ES_PERSON_INDEX", alias="ES_PERSON_INDEX"
     )

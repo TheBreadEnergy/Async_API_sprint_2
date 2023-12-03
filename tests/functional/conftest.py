@@ -2,7 +2,6 @@ import asyncio
 
 import aiohttp
 import pytest_asyncio
-from aiohttp import ClientSession
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from functional.settings import test_settings
@@ -33,8 +32,8 @@ async def client_session():
 @pytest_asyncio.fixture(name="es_write_data")
 def es_write_data(es_client):
     async def inner(data: list[dict]):
-        if await es_client.indices.exists(index=test_settings.es_index):
-            await es_client.indices.delete(index=test_settings.es_index)
+        if await es_client.indices.exists(index=test_settings.es_movie_index):
+            await es_client.indices.delete(index=test_settings.es_movie_index)
         await es_client.indices.create(index=test_settings.es_index, **MOVIE_TEMPLATE)
 
         updated, errors = await async_bulk(client=es_client, actions=data)
@@ -46,10 +45,10 @@ def es_write_data(es_client):
 
 
 @pytest_asyncio.fixture(name="make_get_request")
-def make_get_request(session: ClientSession):
+def make_get_request(client_session):
     async def inner(path: str, query_data):
         url = test_settings.service_url + path
-        async with session.get(url, params=query_data) as response:
+        async with client_session.get(url, params=query_data) as response:
             body = await response.json()
             headers = response.headers
             status = response.status
