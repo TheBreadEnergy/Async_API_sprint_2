@@ -1,25 +1,35 @@
 import random
 import uuid
 
-from functional.settings import fake, test_settings
+from settings import fake, test_settings
 
 random.seed(42)
 
 
-def generate_genre_sample() -> dict:
-    genres = ["Sci-Fi", "Thriller", "Horror", "Mystery", "History", "Science"]
+def generate_person_sample() -> dict:
+    roles = (
+        fake.words(
+            ext_word_list=[
+                "actor",
+                "director",
+                "writer",
+            ],
+            nb=2,
+            unique=True,
+        ),
+    )
     return {
         "id": str(uuid.uuid4()),
-        "name": random.choice(genres),
-        "description": fake.sentence(),
+        "name": fake.name(),
+        "film_roles": [{"film_id": fake.uuid4(), "role": role} for role in roles],
     }
 
 
-def generate_genres_data(size: int = 60) -> list[dict]:
-    es_data = [generate_genre_sample() for _ in range(size)]
+def generate_person_data(size: int = 60) -> list[dict]:
+    es_data = [generate_person_sample() for _ in range(size)]
     bulk_query = []
     for row in es_data:
-        data = {"_index": test_settings.es_genre_index, "_id": row["id"]}
+        data = {"_index": test_settings.es_person_index, "_id": row["id"]}
         data.update({"_source": row})
         bulk_query.append(data)
     return bulk_query
@@ -101,7 +111,7 @@ def generate_sort_queries(data: list[dict], page: int = 1, size: int = 40):
     return queries
 
 
-GENRE_MOCK_DATA = generate_genres_data(125)
-GENRE_SORT_TEST_QUERY = generate_sort_queries(GENRE_MOCK_DATA)
-GENRE_SEARCH_TEST_QUERY = generate_search_queries(GENRE_MOCK_DATA, 10)
-GENRE_PAGINATION_TEST_QUERY = generate_pagination_queries(GENRE_MOCK_DATA)
+PERSON_MOCK_DATA = generate_person_data(125)
+PERSON_SORT_TEST_QUERY = generate_sort_queries(PERSON_MOCK_DATA)
+PERSON_SEARCH_TEST_QUERY = generate_search_queries(PERSON_MOCK_DATA, 10)
+PERSON_PAGINATION_TEST_QUERY = generate_pagination_queries(PERSON_MOCK_DATA)
