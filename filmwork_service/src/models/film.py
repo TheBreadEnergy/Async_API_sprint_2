@@ -19,7 +19,7 @@ class Film(UUIDMixin):
     director: list[str] | None = []
 
 
-class Films(BaseModel):
+class Films(UUIDMixin):
     title: str
     imdb_rating: float | None
     description: str | None = None

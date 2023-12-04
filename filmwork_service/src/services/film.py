@@ -25,7 +25,7 @@ def build_filter(data_filter: dict) -> list[dict]:
     filters = []
     for f_item in data_filter:
         item = f_item.lower()
-        if item == "actors" or item == "writers" or item == "genre":
+        if item == "actors" or item == "writers" or item == "genres":
             filters.append(
                 {
                     "nested": {
