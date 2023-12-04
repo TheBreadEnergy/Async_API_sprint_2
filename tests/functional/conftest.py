@@ -31,24 +31,17 @@ async def client_session():
 
 @pytest_asyncio.fixture(name="es_write_data")
 def es_write_data(es_client):
-    async def inner(data: list[dict]):
-        if await es_client.indices.exists(index=test_settings.es_movie_index):
-            await es_client.indices.delete(index=test_settings.es_movie_index)
-        await es_client.indices.create(
-            index=test_settings.es_movie_index, body=MOVIE_TEMPLATE
+    async def inner(index_name: str, data: list[dict]):
+        if await es_client.indices.exists(index=index_name):
+            await es_client.indices.delete(index=index_name)
+        await es_client.indices.create(index=index_name, body=MOVIE_TEMPLATE)
+        updated, errors = await async_bulk(
+            client=es_client, actions=data, refresh="wait_for"
         )
-        updated, errors = await async_bulk(client=es_client, actions=data)
         if errors:
             raise Exception("Ошибка записи данных в Elasticsearch")
-        # without it fails. TODO: fix this issue
-        await asyncio.sleep(1)
 
     return inner
-
-
-# @pytest_asyncio.fixture(scope="session")
-# async def seed_movie_es(es_write_data):
-#     await es_write_data(MOVIE_MOCK_DATA)
 
 
 @pytest_asyncio.fixture(name="make_get_request")
