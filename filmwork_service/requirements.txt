@@ -48,5 +48,6 @@ uvicorn==0.12.3
 uvloop==0.17.0
 virtualenv==20.24.7
 watchgod==0.6
+httptools==0.6.1
 websockets==8.1
 yarl==1.9.2

@@ -54,7 +54,7 @@ async def search_films(
     response_description="Информация о кинопроизведениях",
 )
 async def list_films(
-    sort=Query("asc", regex="^(asc|desc)$"),
+    sort=None,
     id_film: UUID = None,
     genre: str = None,
     actor_id: str = None,
@@ -67,7 +67,7 @@ async def list_films(
     if id_film:
         data_filter["id"] = id_film
     if genre:
-        data_filter["genre"] = genre
+        data_filter["genres"] = genre
     if actor_id:
         data_filter["actors"] = actor_id
     if writer_id:
