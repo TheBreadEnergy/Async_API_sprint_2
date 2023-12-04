@@ -67,7 +67,7 @@ async def list_films(
     if id_film:
         data_filter["id"] = id_film
     if genre:
-        data_filter["genre"] = genre
+        data_filter["genres"] = genre
     if actor_id:
         data_filter["actors"] = actor_id
     if writer_id:
