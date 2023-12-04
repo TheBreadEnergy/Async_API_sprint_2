@@ -10,7 +10,7 @@ from functional.testdata.movie_template import MOVIE_TEMPLATE
 
 @pytest_asyncio.fixture(scope="session")
 def event_loop():
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
@@ -35,15 +35,20 @@ def es_write_data(es_client):
         if await es_client.indices.exists(index=test_settings.es_movie_index):
             await es_client.indices.delete(index=test_settings.es_movie_index)
         await es_client.indices.create(
-            index=test_settings.es_movie_index, **MOVIE_TEMPLATE
+            index=test_settings.es_movie_index, body=MOVIE_TEMPLATE
         )
-
         updated, errors = await async_bulk(client=es_client, actions=data)
-
         if errors:
             raise Exception("Ошибка записи данных в Elasticsearch")
+        # without it fails. TODO: fix this issue
+        await asyncio.sleep(1)
 
     return inner
+
+
+# @pytest_asyncio.fixture(scope="session")
+# async def seed_movie_es(es_write_data):
+#     await es_write_data(MOVIE_MOCK_DATA)
 
 
 @pytest_asyncio.fixture(name="make_get_request")
@@ -54,6 +59,6 @@ def make_get_request(client_session):
             body = await response.json()
             headers = response.headers
             status = response.status
-        return {"body": body, headers: "headers", "status": status}
+        return {"body": body, "headers": headers, "status": status}
 
     return inner
