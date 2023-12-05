@@ -183,6 +183,10 @@ def generate_filter_queries(data: list[dict]):
         if item["id"] == genre
     ]
 
+    print(len(actor_films))
+    print(len(writer_films))
+    print(len(genre_films))
+
     queries.append(
         (
             {"actor_id": actor_id},

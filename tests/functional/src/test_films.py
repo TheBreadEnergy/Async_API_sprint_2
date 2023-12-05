@@ -1,4 +1,5 @@
 import pytest
+from functional.settings import test_settings
 from functional.testdata.movie_data import (
     MOVIE_FILTER_TEST_QUERY,
     MOVIE_MOCK_DATA,
@@ -6,6 +7,7 @@ from functional.testdata.movie_data import (
     MOVIE_SEARCH_TEST_QUERY,
     MOVIE_SORT_TEST_QUERY,
 )
+from functional.testdata.movie_template import MOVIE_TEMPLATE
 
 
 @pytest.mark.parametrize("query_data, expected_answer", MOVIE_PAGINATION_TEST_QUERY)
@@ -13,7 +15,7 @@ from functional.testdata.movie_data import (
 async def test_pagination(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
-    await es_write_data(MOVIE_MOCK_DATA)
+    await es_write_data(test_settings.es_movie_index, MOVIE_TEMPLATE, MOVIE_MOCK_DATA)
     response = await make_get_request("/api/v1/films/", query_data)
     assert response["status"] == expected_answer["status"]
     assert len(response["body"]) == expected_answer["length"]
@@ -24,10 +26,9 @@ async def test_pagination(
 async def test_sort(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
-    await es_write_data(MOVIE_MOCK_DATA)
+    await es_write_data(test_settings.es_movie_index, MOVIE_TEMPLATE, MOVIE_MOCK_DATA)
     response = await make_get_request("/api/v1/films/", query_data)
     assert response["status"] == expected_answer["status"]
-
     assert [item["id"] for item in response["body"]] == expected_answer["body"]
 
 
@@ -36,7 +37,7 @@ async def test_sort(
 async def test_filter(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
-    await es_write_data(MOVIE_MOCK_DATA)
+    await es_write_data(test_settings.es_movie_index, MOVIE_TEMPLATE, MOVIE_MOCK_DATA)
     response = await make_get_request("/api/v1/films/", query_data)
     assert response["status"] == expected_answer["status"]
     assert len(response["body"]) == expected_answer["length"]
@@ -48,7 +49,7 @@ async def test_filter(
 async def test_search(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
-    await es_write_data(MOVIE_MOCK_DATA)
+    await es_write_data(test_settings.es_movie_index, MOVIE_TEMPLATE, MOVIE_MOCK_DATA)
     response = await make_get_request("/api/v1/films/search/", query_data)
     assert response["status"] == expected_answer["status"]
     assert len(response["body"]) == expected_answer["length"]

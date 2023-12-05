@@ -4,6 +4,7 @@ annotated-types==0.6.0
 anyio==3.7.1
 async-timeout==4.0.3
 attrs==23.1.0
+backoff==2.2.1
 black==21.12b0
 certifi==2023.11.17
 cfgv==3.4.0
@@ -17,6 +18,7 @@ flake8==6.1.0
 frozenlist==1.4.0
 gunicorn==21.2.0
 h11==0.14.0
+httptools==0.6.1
 identify==2.5.32
 idna==3.4
 iniconfig==2.0.0
