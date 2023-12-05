@@ -12,9 +12,7 @@ def wait_for_es(es_client: Elasticsearch):
 
 
 def main():
-    es_client = Elasticsearch(
-        hosts=test_settings.ELASTICSEARCH_HOSTS, validate_cert=False, use_ssl=False
-    )
+    es_client = Elasticsearch(hosts=test_settings.es_host)
     wait_for_es(es_client)
 
 

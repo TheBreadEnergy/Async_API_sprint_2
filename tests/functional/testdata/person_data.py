@@ -1,7 +1,7 @@
 import random
 import uuid
 
-from settings import fake, test_settings
+from functional.settings import fake, test_settings
 
 random.seed(42)
 
