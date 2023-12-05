@@ -485,9 +485,4 @@ cython_debug/
 # Android studio 3.1+ serialized cache file
 
 
-envs/.env.api.films.tests
-envs/.env.database.tests
-envs/.env.etl.tests
-envs/.env.django.tests
-envs/env.tests
 .pytest_cache/
