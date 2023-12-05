@@ -5,7 +5,7 @@
     В качестве базовой архитектуры программного обеспечения используется микросервисная архитектура. 
 </p>
 <p> 
-    Полный исходный код проекта расположен по <a href="https://github.com/ProTupfe4/Async_API_sprint_1"> ссылке. </a>
+    Полный исходный код проекта расположен по <a href="https://github.com/ProTupfe4/Async_API_sprint_2"> ссылке. </a>
     В рамках проекта реализованы следующие сервисы:
     <ol>
         <li> 
@@ -27,6 +27,11 @@
         <li> 
             <a href="./person_genre_service"> Сервис </a> для получения сведений о персоналиях и жанрах с возможностью
             поиска, фильтрации и пагинации. Выполнено с помощью <a href=""> FastAPI </a> c поддержкой кэширования в 
+            <a href="https://redis.io"> Redis </a> 
+        </li>
+        <li> 
+            <a href="./tests"> tests </a> Папка содержащая исходный код тестов. В данный момент в ней содержатся функциональные тесты сервиса.
+             Реализованы тесты с использованием <a href="https://docs.pytest.org/en/7.4.x/"> Pytest </a> и <a href="https://faker.readthedocs.io"> Faker </a>
             <a href="https://redis.io"> Redis </a> 
         </li>
     </ol>
@@ -82,7 +87,12 @@
     │   ├── Dockerfile
     ├── postgres                                # Сервис базы данных Postgres. Мы собираем свой образ на базе postgres:latest докер образа
     │   ├── Dockerfile 
-    │   ├── init.sql                            # Скрипт инициализации базы данных.
+    │   ├── init.sql   
+    ├── tests                                   # Тесты привязанные к проекту
+    │   ├── envs/                               # Переменные окружения необходимые для работы тестов
+    │   ├── functional/                         # Функциональные тесты
+    │   ├── Dockerfile                          # Dockerfile
+    │   ├── docker-compose-tests.yaml           # docker-compose файл  
     ├── .flake8
     ├── .pre-commit-config.yaml
     ├── docker-compose-dev.yaml

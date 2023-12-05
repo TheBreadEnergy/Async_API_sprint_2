@@ -23,10 +23,10 @@
 <h2>Примеры запросов</h2>
 <p><code>/api/v1/films/{film_id}</code> - запрос подробной информации о кинопроизведении.
 <code>{film_id}</code> - идентификатор кинопроизведения</p>
-<p><code>/api/v1/films?sort=-imdb_rating&page_size=50&page_number=1</code> - запрос 
+<p><code>/api/v1/films?sort=-imdb_rating&size=50&page=1</code> - запрос 
 подробной информации о кинопроизведениях с пагинацией результата запроса.
-Пагинация настраивается двумя параметрами - <code>page_size</code> и 
-<code>page_number</code>.</p> <p><code>page_size</code> - количество фильмов на 
+Пагинация настраивается двумя параметрами - <code>size</code> и 
+<code>page</code>.</p> <p><code>size</code> - количество фильмов на 
 одной странице.</p> 
 <p><code>page_number</code> - номер запрашиваемой страницы.</p>
 <p>Сортировка возможна по полю <code>imdb_rating</code>.
