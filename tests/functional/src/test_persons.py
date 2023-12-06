@@ -8,9 +8,10 @@ from functional.testdata.person_data import (
 )
 from functional.testdata.person_template import PERSON_TEMPLATE
 
+pytestmark = pytest.mark.asyncio
+
 
 @pytest.mark.parametrize("query_data, expected_answer", PERSON_PAGINATION_TEST_QUERY)
-@pytest.mark.asyncio
 async def test_pagination(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
@@ -23,7 +24,6 @@ async def test_pagination(
 
 
 @pytest.mark.parametrize("query_data, expected_answer", PERSON_SORT_TEST_QUERY)
-@pytest.mark.asyncio
 async def test_sort(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
@@ -37,7 +37,6 @@ async def test_sort(
 
 
 @pytest.mark.parametrize("query_data, expected_answer", PERSON_SEARCH_TEST_QUERY)
-@pytest.mark.asyncio
 async def test_search(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
