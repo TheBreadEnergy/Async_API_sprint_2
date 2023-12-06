@@ -9,9 +9,10 @@ from functional.testdata.movie_data import (
 )
 from functional.testdata.movie_template import MOVIE_TEMPLATE
 
+pytestmark = pytest.mark.asyncio
+
 
 @pytest.mark.parametrize("query_data, expected_answer", MOVIE_PAGINATION_TEST_QUERY)
-@pytest.mark.asyncio
 async def test_pagination(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
@@ -33,7 +34,6 @@ async def test_sort(
 
 
 @pytest.mark.parametrize("query_data, expected_answer", MOVIE_FILTER_TEST_QUERY)
-@pytest.mark.asyncio
 async def test_filter(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):
@@ -45,7 +45,6 @@ async def test_filter(
 
 
 @pytest.mark.parametrize("query_data, expected_answer", MOVIE_SEARCH_TEST_QUERY)
-@pytest.mark.asyncio
 async def test_search(
     es_write_data, make_get_request, query_data: dict, expected_answer: dict
 ):

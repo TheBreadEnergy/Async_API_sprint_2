@@ -16,7 +16,7 @@ RUN groupadd -r fastapi && useradd -d /opt/app -r -g fastapi fastapi \
 
 COPY requirements.txt requirements.txt
 
-RUN python -m pip install --upgrade pip && pip install -r requirements.txt
+RUN python -m pip install --upgrade pip && pip install -r requirements.txt --no-cache-dir
 
 COPY . .
 
